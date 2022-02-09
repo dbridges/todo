@@ -99,3 +99,29 @@ func (todos *TodoList) Delete(index int) {
 	}
 	todos.Items = items
 }
+
+func (todos *TodoList) MoveUp(index int) {
+	if index <= 0 {
+		return
+	}
+
+	v1 := todos.Items[index]
+	v2 := todos.Items[index-1]
+	todos.Items[index-1] = v1
+	todos.Items[index] = v2
+
+	todos.Sort()
+}
+
+func (todos *TodoList) MoveDown(index int) {
+	if index >= len(todos.Items)-1 {
+		return
+	}
+
+	v1 := todos.Items[index]
+	v2 := todos.Items[index+1]
+	todos.Items[index+1] = v1
+	todos.Items[index] = v2
+
+	todos.Sort()
+}

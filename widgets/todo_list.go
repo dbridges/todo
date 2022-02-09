@@ -25,12 +25,20 @@ func (m *TodoList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "j":
+		case "j", "down":
 			m.cursor = util.Clamp(m.cursor+1, 0, len(m.todos.Items)-1)
-		case "k":
+		case "k", "up":
 			m.cursor = util.Clamp(m.cursor-1, 0, len(m.todos.Items)-1)
 		case " ":
 			m.todos.ToggleCompleted(m.cursor)
+			m.todos.Save()
+		case "=", "+":
+			m.todos.MoveUp(m.cursor)
+			m.cursor = util.Clamp(m.cursor-1, 0, len(m.todos.Items)-1)
+			m.todos.Save()
+		case "-", "_":
+			m.todos.MoveDown(m.cursor)
+			m.cursor = util.Clamp(m.cursor+1, 0, len(m.todos.Items)-1)
 			m.todos.Save()
 		case "c":
 			m.todos.ClearCompleted()
