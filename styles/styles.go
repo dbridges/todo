@@ -8,6 +8,7 @@ const (
 	contentSidePadding = 2
 	todoWidth          = width - 2*contentSidePadding
 	todoContentWidth   = todoWidth - 4
+	helpWidth          = todoWidth - 4
 )
 
 // Colors
@@ -27,9 +28,21 @@ var Block = lipgloss.
 
 var Title = Block.Copy().Bold(true)
 
-var Help = Block.Copy().Foreground(secondary).BorderStyle(lipgloss.NormalBorder()).BorderBottom(true)
+var Header = Block.
+	Copy().
+	Foreground(secondary).
+	BorderStyle(lipgloss.NormalBorder()).
+	BorderBottom(true)
 
-var Content = Block.Copy().Padding(1, contentSidePadding).Align(lipgloss.Left)
+var Content = Block.
+	Copy().
+	Padding(1, contentSidePadding).
+	Align(lipgloss.Left)
+
+var CenteredContent = Block.
+	Copy().
+	Padding(1, contentSidePadding).
+	Align(lipgloss.Center)
 
 var Message = Block.Copy().Padding(2)
 
@@ -66,3 +79,10 @@ var CompletedTodoDescription = lipgloss.
 	Strikethrough(true).
 	Foreground(tertiary).
 	Inherit(TodoDescription)
+
+var Help = lipgloss.
+	NewStyle().
+	Padding(0, 8).
+	Align(lipgloss.Center).
+	BorderForeground(secondary).
+	BorderStyle(lipgloss.RoundedBorder())
