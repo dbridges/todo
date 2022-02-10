@@ -8,10 +8,16 @@ import (
 	"github.com/dbridges/todo/widgets"
 )
 
+const (
+	StateList = iota
+	StateForm
+)
+
 type RunScene struct {
 	config        *config.Config
 	todos         *models.TodoList
 	content       tea.Model
+	state         int
 	isHelpVisible bool
 }
 
@@ -24,6 +30,7 @@ func NewRunScene(cfg *config.Config) (*RunScene, error) {
 		config:  cfg,
 		todos:   todos,
 		content: widgets.NewTodoList(todos),
+		state:   StateList,
 	}, nil
 }
 
@@ -34,6 +41,11 @@ func (scene *RunScene) Init() tea.Cmd {
 func (scene *RunScene) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+		if scene.state == StateForm {
+			_, cmd := scene.content.Update(msg)
+			return scene, cmd
+		}
+
 		switch msg.String() {
 		case "esc":
 			scene.isHelpVisible = false
@@ -44,10 +56,12 @@ func (scene *RunScene) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			return scene, tea.Quit
 		case "n":
+			scene.state = StateForm
 			scene.content = widgets.NewAddTodo()
 			return scene, nil
 		}
 	case widgets.AddTodoAbortMsg:
+		scene.state = StateList
 		scene.content = widgets.NewTodoList(scene.todos)
 		return scene, nil
 	case widgets.AddTodoMsg:
@@ -55,6 +69,7 @@ func (scene *RunScene) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			scene.todos.Add(msg.Todo)
 			scene.todos.Save()
 		}
+		scene.state = StateList
 		scene.content = widgets.NewTodoList(scene.todos)
 		return scene, nil
 	}
