@@ -28,13 +28,15 @@ func Add(cfg *config.Config) {
 	}
 
 	if todo.IsValid() {
-		todos, err := models.LoadTodos(cfg.Path)
+		store, err := models.LoadTodos(cfg.Path)
 		if err != nil {
 			log.Fatalf("Error %v", err)
 		}
 
-		todos.Add(todo)
-		if err := todos.Save(); err != nil {
+		fmt.Println(len(store.Todos))
+
+		store.Add(todo)
+		if err := store.Save(); err != nil {
 			util.ExitError(err)
 		}
 

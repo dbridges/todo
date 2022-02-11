@@ -9,12 +9,12 @@ import (
 )
 
 type TodoList struct {
-	todos  *models.TodoList
+	store  *models.Store
 	cursor int
 }
 
-func NewTodoList(todos *models.TodoList) *TodoList {
-	return &TodoList{todos: todos}
+func NewTodoList(store *models.Store) *TodoList {
+	return &TodoList{store: store}
 }
 
 func (m *TodoList) Init() tea.Cmd {
@@ -26,28 +26,24 @@ func (m *TodoList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "j", "down":
-			m.cursor = util.Clamp(m.cursor+1, 0, len(m.todos.Items)-1)
+			m.cursor = util.Clamp(m.cursor+1, 0, len(m.store.Todos)-1)
 		case "k", "up":
-			m.cursor = util.Clamp(m.cursor-1, 0, len(m.todos.Items)-1)
+			m.cursor = util.Clamp(m.cursor-1, 0, len(m.store.Todos)-1)
 		case " ":
-			m.todos.ToggleCompleted(m.cursor)
-			m.todos.Save()
+			m.store.ToggleCompleted(m.cursor)
+			m.store.Save()
 		case "=", "+":
-			m.todos.MoveUp(m.cursor)
-			m.cursor = util.Clamp(m.cursor-1, 0, len(m.todos.Items)-1)
-			m.todos.Save()
+			m.store.MoveUp(m.cursor)
+			m.cursor = util.Clamp(m.cursor-1, 0, len(m.store.Todos)-1)
+			m.store.Save()
 		case "-", "_":
-			m.todos.MoveDown(m.cursor)
-			m.cursor = util.Clamp(m.cursor+1, 0, len(m.todos.Items)-1)
-			m.todos.Save()
-		case "c":
-			m.todos.ClearCompleted()
-			m.cursor = util.Clamp(m.cursor, 0, len(m.todos.Items)-1)
-			m.todos.Save()
+			m.store.MoveDown(m.cursor)
+			m.cursor = util.Clamp(m.cursor+1, 0, len(m.store.Todos)-1)
+			m.store.Save()
 		case "backspace":
-			m.todos.Delete(m.cursor)
-			m.cursor = util.Clamp(m.cursor, 0, len(m.todos.Items)-1)
-			m.todos.Save()
+			m.store.Delete(m.cursor)
+			m.cursor = util.Clamp(m.cursor, 0, len(m.store.Todos)-1)
+			m.store.Save()
 		}
 	}
 
@@ -55,7 +51,7 @@ func (m *TodoList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *TodoList) View() string {
-	if len(m.todos.Items) == 0 {
+	if len(m.store.Todos) == 0 {
 		return m.EmptyView()
 	}
 	return m.ListView()
@@ -66,9 +62,9 @@ func (m *TodoList) EmptyView() string {
 }
 
 func (m *TodoList) ListView() string {
-	items := make([]string, len(m.todos.Items))
+	items := make([]string, len(m.store.Todos))
 
-	for i, todo := range m.todos.Items {
+	for i, todo := range m.store.Todos {
 		items[i] = m.RenderTodo(todo, m.cursor == i)
 	}
 
@@ -80,7 +76,7 @@ func (m *TodoList) RenderTodo(todo models.Todo, selected bool) string {
 	var titleStyle lipgloss.Style
 	var descriptionStyle lipgloss.Style
 
-	if todo.Completed {
+	if todo.Completed() {
 		check = styles.Green.Render(" ✓ ")
 		titleStyle = styles.CompletedTodoTitle
 		descriptionStyle = styles.CompletedTodoDescription

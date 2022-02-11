@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 )
 
 func ExitError(err error) {
@@ -30,4 +31,8 @@ func Clamp(val, min, max int) int {
 		return max
 	}
 	return val
+}
+
+func Today() string {
+	return time.Now().Format("2006-01-02")
 }

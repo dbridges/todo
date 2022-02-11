@@ -15,21 +15,21 @@ const (
 
 type RunScene struct {
 	config        *config.Config
-	todos         *models.TodoList
+	store         *models.Store
 	content       tea.Model
 	state         int
 	isHelpVisible bool
 }
 
 func NewRunScene(cfg *config.Config) (*RunScene, error) {
-	todos, err := models.LoadTodos(cfg.Path)
+	store, err := models.LoadTodos(cfg.Path)
 	if err != nil {
 		return nil, err
 	}
 	return &RunScene{
 		config:  cfg,
-		todos:   todos,
-		content: widgets.NewTodoList(todos),
+		store:   store,
+		content: widgets.NewTodoList(store),
 		state:   StateList,
 	}, nil
 }
@@ -62,15 +62,15 @@ func (scene *RunScene) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case widgets.AddTodoAbortMsg:
 		scene.state = StateList
-		scene.content = widgets.NewTodoList(scene.todos)
+		scene.content = widgets.NewTodoList(scene.store)
 		return scene, nil
 	case widgets.AddTodoMsg:
 		if msg.Todo.IsValid() {
-			scene.todos.Add(msg.Todo)
-			scene.todos.Save()
+			scene.store.Add(msg.Todo)
+			scene.store.Save()
 		}
 		scene.state = StateList
-		scene.content = widgets.NewTodoList(scene.todos)
+		scene.content = widgets.NewTodoList(scene.store)
 		return scene, nil
 	}
 
