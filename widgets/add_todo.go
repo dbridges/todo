@@ -45,6 +45,12 @@ func (m *AddTodo) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "description":
 			m.todo.Description = msg.Value
 			m.history += m.content.View() + "\n"
+			m.content = NewInput("Label")
+			m.field = "label"
+			return m, nil
+		case "label":
+			m.todo.Label = msg.Value
+			m.history += m.content.View() + "\n"
 			return m, func() tea.Msg { return AddTodoMsg{Todo: m.todo} }
 		default:
 			return m, nil

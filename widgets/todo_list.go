@@ -9,12 +9,13 @@ import (
 )
 
 type TodoList struct {
-	store  *models.Store
-	cursor int
+	store       *models.Store
+	cursor      int
+	labelColors map[string]string
 }
 
-func NewTodoList(store *models.Store) *TodoList {
-	return &TodoList{store: store}
+func NewTodoList(store *models.Store, labelColors map[string]string) *TodoList {
+	return &TodoList{store: store, labelColors: labelColors}
 }
 
 func (m *TodoList) Init() tea.Cmd {
@@ -75,6 +76,17 @@ func (m *TodoList) RenderTodo(todo models.Todo, selected bool) string {
 	check := ""
 	var titleStyle lipgloss.Style
 	var descriptionStyle lipgloss.Style
+	labelColor := "#1074e6"
+
+	color, ok := m.labelColors[todo.Label]
+	if ok {
+		labelColor = color
+	}
+
+	labelStyle := lipgloss.
+		NewStyle().
+		Foreground(styles.ForegroundTextColor(labelColor)).
+		Background(lipgloss.Color(labelColor))
 
 	if todo.Completed() {
 		check = styles.Green.Render(" ✓ ")
@@ -86,8 +98,15 @@ func (m *TodoList) RenderTodo(todo models.Todo, selected bool) string {
 		descriptionStyle = styles.TodoDescription
 	}
 
+	var title string
+	if todo.Label != "" {
+		title = labelStyle.Render(" #"+todo.Label+" ") + " " + titleStyle.Render(todo.Title)
+	} else {
+		title = titleStyle.Render(todo.Title)
+	}
+
 	bodyItems := make([]string, 0)
-	bodyItems = append(bodyItems, titleStyle.Render(todo.Title))
+	bodyItems = append(bodyItems, title)
 	if len(todo.Description) > 0 {
 		bodyItems = append(bodyItems, descriptionStyle.Render(todo.Description))
 	}

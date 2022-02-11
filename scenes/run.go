@@ -29,7 +29,7 @@ func NewRunScene(cfg *config.Config) (*RunScene, error) {
 	return &RunScene{
 		config:  cfg,
 		store:   store,
-		content: widgets.NewTodoList(store),
+		content: widgets.NewTodoList(store, cfg.LabelColors),
 		state:   StateList,
 	}, nil
 }
@@ -62,7 +62,7 @@ func (scene *RunScene) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case widgets.AddTodoAbortMsg:
 		scene.state = StateList
-		scene.content = widgets.NewTodoList(scene.store)
+		scene.content = widgets.NewTodoList(scene.store, scene.config.LabelColors)
 		return scene, nil
 	case widgets.AddTodoMsg:
 		if msg.Todo.IsValid() {
@@ -70,7 +70,7 @@ func (scene *RunScene) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			scene.store.Save()
 		}
 		scene.state = StateList
-		scene.content = widgets.NewTodoList(scene.store)
+		scene.content = widgets.NewTodoList(scene.store, scene.config.LabelColors)
 		return scene, nil
 	}
 

@@ -9,7 +9,8 @@ import (
 )
 
 type Config struct {
-	Path string
+	Path        string
+	LabelColors map[string]string
 }
 
 func UserConfigDir() (string, error) {
@@ -39,12 +40,20 @@ func Load() (*Config, error) {
 		return nil, err
 	}
 
+	c := &Config{}
+
 	p, err := util.ExpandUser(cfg.Section("core").Key("path").String())
 	if err != nil {
 		return nil, err
 	}
+	c.Path = p
 
-	return &Config{Path: p}, nil
+	c.LabelColors = make(map[string]string)
+	for _, k := range cfg.Section("labels").KeyStrings() {
+		c.LabelColors[k] = cfg.Section("labels").Key(k).String()
+	}
+
+	return c, nil
 }
 
 func (cfg *Config) IsValid() bool {
