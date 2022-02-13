@@ -44,16 +44,15 @@ func Usage() {
 }
 
 func main() {
-	if err := initLog(); err != nil {
-		util.ExitError(err)
-	}
+	err := initLog()
+	util.CheckError(err)
 
 	cfg, err := config.Load()
-	if err != nil {
-		util.ExitError(err)
-	}
+	util.CheckError(err)
 	if !cfg.IsValid() {
-		util.ExitError(fmt.Errorf("Invalid config, must contain 'path' entry under '[core]'."))
+		util.CheckError(
+			fmt.Errorf("Invalid config, must contain 'path' entry under '[core]'."),
+		)
 	}
 
 	if len(os.Args) > 1 {

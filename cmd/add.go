@@ -21,9 +21,8 @@ func Add(cfg *config.Config) {
 		todo.Title = os.Args[2]
 	} else {
 		p := tea.NewProgram(scene)
-		if err := p.Start(); err != nil {
-			util.ExitError(err)
-		}
+		err := p.Start()
+		util.CheckError(err)
 		todo = scene.Todo
 	}
 
@@ -36,9 +35,8 @@ func Add(cfg *config.Config) {
 		fmt.Println(len(store.Todos))
 
 		store.Add(todo)
-		if err := store.Save(); err != nil {
-			util.ExitError(err)
-		}
+		err = store.Save()
+		util.CheckError(err)
 
 		fmt.Println("\nAdded 1 todo:")
 		fmt.Println(todo.String())

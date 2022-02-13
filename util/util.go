@@ -8,9 +8,11 @@ import (
 	"time"
 )
 
-func ExitError(err error) {
-	fmt.Printf("Error: %v\n", err)
-	os.Exit(1)
+func CheckError(err error) {
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		os.Exit(1)
+	}
 }
 
 func ExpandUser(p string) (string, error) {

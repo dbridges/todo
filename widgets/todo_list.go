@@ -100,7 +100,7 @@ func (m *TodoList) RenderTodo(todo models.Todo, selected bool) string {
 
 	var title string
 	if todo.Label != "" {
-		title = labelStyle.Render(" #"+todo.Label+" ") + " " + titleStyle.Render(todo.Title)
+		title = labelStyle.Render(" "+todo.Label+" ") + " " + titleStyle.Render(todo.Title)
 	} else {
 		title = titleStyle.Render(todo.Title)
 	}
@@ -118,5 +118,6 @@ func (m *TodoList) RenderTodo(todo models.Todo, selected bool) string {
 	if selected {
 		return styles.SelectedTodo.Render(c)
 	}
+
 	return styles.Todo.Render(c)
 }

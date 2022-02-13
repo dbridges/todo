@@ -9,12 +9,9 @@ import (
 
 func Run(cfg *config.Config) {
 	scene, err := scenes.NewRunScene(cfg)
-	if err != nil {
-		util.ExitError(err)
-	}
+	util.CheckError(err)
 
 	p := tea.NewProgram(scene)
-	if err := p.Start(); err != nil {
-		util.ExitError(err)
-	}
+	err = p.Start()
+	util.CheckError(err)
 }

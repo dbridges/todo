@@ -1,11 +1,13 @@
 package config
 
 import (
+	"io/ioutil"
 	"os"
 	"path"
+	"regexp"
+	"strings"
 
 	"github.com/dbridges/todo/util"
-	"gopkg.in/ini.v1"
 )
 
 type Config struct {
@@ -35,22 +37,39 @@ func Load() (*Config, error) {
 		return nil, err
 	}
 
-	cfg, err := ini.Load(path.Join(configDir, "todo", "config.ini"))
+	fullPath := path.Join(configDir, "todo", "config.ini")
+	bytes, err := ioutil.ReadFile(fullPath)
 	if err != nil {
 		return nil, err
 	}
 
 	c := &Config{}
-
-	p, err := util.ExpandUser(cfg.Section("core").Key("path").String())
-	if err != nil {
-		return nil, err
-	}
-	c.Path = p
-
 	c.LabelColors = make(map[string]string)
-	for _, k := range cfg.Section("labels").KeyStrings() {
-		c.LabelColors[k] = cfg.Section("labels").Key(k).String()
+
+	keyRegex := regexp.MustCompile(`^\s*\[(?P<Key>[A-Za-z]+)\]\s*$`)
+	currentKey := ""
+
+	for _, line := range strings.Split(string(bytes), "\n") {
+		if keyRegex.MatchString(line) {
+			matches := keyRegex.FindStringSubmatch(line)
+			currentKey = matches[1]
+			continue
+		}
+		fields := strings.Fields(line)
+		if len(fields) == 3 && fields[1] == "=" {
+			switch currentKey {
+			case "core":
+				if fields[0] == "path" {
+					p, err := util.ExpandUser(fields[2])
+					if err != nil {
+						return nil, err
+					}
+					c.Path = p
+				}
+			case "labels":
+				c.LabelColors[fields[0]] = fields[2]
+			}
+		}
 	}
 
 	return c, nil

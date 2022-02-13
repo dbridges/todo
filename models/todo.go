@@ -8,17 +8,10 @@ type Todo struct {
 }
 
 func (todo Todo) String() string {
-	s := ""
-	if todo.Completed() {
-		s += "- [x] "
-	} else {
-		s += "- [ ] "
-	}
-
-	s += todo.Title
+	s := todo.Title
 
 	if len(todo.Description) > 0 {
-		s += "\n      " + todo.Description
+		s += "\n" + todo.Description
 	}
 
 	return s
