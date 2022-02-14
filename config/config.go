@@ -10,6 +10,9 @@ import (
 	"github.com/dbridges/todo/util"
 )
 
+var keyRegex = regexp.MustCompile(`^\s*\[(?P<Key>[A-Za-z]+)\]\s*$`)
+var keyValueRegex = regexp.MustCompile(`^\s*(?P<Key>[A-Za-z]+) = "(?P<Value>.+)"$`)
+
 type Config struct {
 	Path        string
 	LabelColors map[string]string
@@ -37,7 +40,7 @@ func Load() (*Config, error) {
 		return nil, err
 	}
 
-	fullPath := path.Join(configDir, "todo", "config.ini")
+	fullPath := path.Join(configDir, "todo", "config.toml")
 	bytes, err := ioutil.ReadFile(fullPath)
 	if err != nil {
 		return nil, err
@@ -46,7 +49,6 @@ func Load() (*Config, error) {
 	c := &Config{}
 	c.LabelColors = make(map[string]string)
 
-	keyRegex := regexp.MustCompile(`^\s*\[(?P<Key>[A-Za-z]+)\]\s*$`)
 	currentKey := ""
 
 	for _, line := range strings.Split(string(bytes), "\n") {
@@ -54,20 +56,19 @@ func Load() (*Config, error) {
 			matches := keyRegex.FindStringSubmatch(line)
 			currentKey = matches[1]
 			continue
-		}
-		fields := strings.Fields(line)
-		if len(fields) == 3 && fields[1] == "=" {
+		} else if keyValueRegex.MatchString(line) {
+			matches := keyValueRegex.FindStringSubmatch(line)
 			switch currentKey {
 			case "core":
-				if fields[0] == "path" {
-					p, err := util.ExpandUser(fields[2])
+				if matches[1] == "path" {
+					p, err := util.ExpandUser(matches[2])
 					if err != nil {
 						return nil, err
 					}
 					c.Path = p
 				}
 			case "labels":
-				c.LabelColors[fields[0]] = fields[2]
+				c.LabelColors[matches[1]] = matches[2]
 			}
 		}
 	}
