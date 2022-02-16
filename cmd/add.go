@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -13,12 +14,21 @@ import (
 )
 
 func Add(cfg *config.Config) {
+	os.Args = os.Args[1:]
+
+	labelFlag := flag.String("l", "", "Set the new todo label")
+	descriptionFlag := flag.String("d", "", "Set the new todo description")
+	flag.Parse()
+
 	scene := scenes.NewAddScene(cfg)
 
-	var todo = models.Todo{}
+	var todo = models.Todo{
+		Label:       *labelFlag,
+		Description: *descriptionFlag,
+	}
 
-	if len(os.Args) == 3 {
-		todo.Title = os.Args[2]
+	if flag.Arg(0) != "" {
+		todo.Title = flag.Arg(0)
 	} else {
 		p := tea.NewProgram(scene)
 		err := p.Start()
